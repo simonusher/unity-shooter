@@ -128,4 +128,63 @@ public class GameManager : MonoBehaviour
         IDbConnection connection = new SqliteConnection(connectionString);
         return connection;
     }
+
+    public void SetObjectShotDown(int index)
+    {
+        if(loggedInPlayer != null)
+        {
+            loggedInPlayer.ObjectsShotDown[index] = true;
+        }
+    }
+
+    public void ResetObjectsShotDown()
+    {
+        for(int i = 0; i < loggedInPlayer.ObjectsShotDown.Length; i++)
+        {
+            loggedInPlayer.ObjectsShotDown[i] = false;
+        }
+    }
+
+    public void SaveState()
+    {
+        IDbConnection connection = GetDbConnection();
+        IDbCommand command = connection.CreateCommand();
+        connection.Open();
+        IDbTransaction transaction = connection.BeginTransaction();
+        command.Transaction = transaction;
+
+        try
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                int shotDown = loggedInPlayer.ObjectsShotDown[i] ? 1 : 0;
+                int userId = loggedInPlayer.UserId;
+                string userTargetCommand = string.Format("UPDATE UserTargets SET isShotDown = {0} WHERE userId = {1} AND targetId = {2}", shotDown, userId, i);
+                command.CommandText = userTargetCommand;
+                command.ExecuteNonQuery();
+            }
+            transaction.Commit();
+        }
+        catch (Exception e)
+        {
+            transaction.Rollback();
+        }
+        finally
+        {
+            command.Dispose();
+            connection.Close();
+        }
+    }
+
+    private void Logout()
+    {
+        loggedInPlayer = null;
+    }
+
+    public void SaveStateAndExit()
+    {
+        SaveState();
+        Logout();
+        SceneManager.LoadScene("Login");
+    }
 }

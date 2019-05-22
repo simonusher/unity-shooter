@@ -32,7 +32,8 @@ public class DestroyableWithEffects : MonoBehaviour
     private IEnumerator DestroyAfterEffect()
     {
         yield return new WaitForSeconds(effectParticleSystem.main.duration);
-        Messenger.Broadcast(GameEvents.TARGET_DESTROYED);
+        int myId = GetComponent<IdComponent>().id;
+        Messenger<int>.Broadcast(GameEvents.TARGET_DESTROYED, myId);
         Destroy(this.gameObject);
     }
 }

@@ -6,29 +6,24 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
-    private int targetsToShootDown;
-    private int targetsHit;
+    public int targetsToShootDown;
+    public int targetsHit;
 
     [SerializeField] private Transform targetPrefab;
     [SerializeField] private Vector3[] targetPositions;
 
     private void Awake()
     {
-        Messenger.AddListener(GameEvents.TARGET_DESTROYED, OnTargetDestroyed);
+        Messenger<int>.AddListener(GameEvents.TARGET_DESTROYED, OnTargetDestroyed);
         InitTargets();
         Cursor.visible = false;
-    }
-
-    void Start()
-    {
-
     }
 
     private void InitTargets()
     {
         PlayerData playerData = GameManager.manager.loggedInPlayer;
-        int targetsToShootDown = 0;
-        int targetsHit = 0;
+        targetsToShootDown = 0;
+        targetsHit = 0;
         bool[] targetsTakenDown = playerData.ObjectsShotDown;
         for (int i = 0; i < targetsTakenDown.Length; i++)
         {
@@ -47,11 +42,12 @@ public class LevelManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        Messenger.RemoveListener(GameEvents.TARGET_DESTROYED, OnTargetDestroyed);
+        Messenger<int>.RemoveListener(GameEvents.TARGET_DESTROYED, OnTargetDestroyed);
     }
 
-    private void OnTargetDestroyed()
+    private void OnTargetDestroyed(int index)
     {
+        GameManager.manager.SetObjectShotDown(index);
         targetsHit++;
         CheckIfGameFinished();
     }
@@ -60,6 +56,8 @@ public class LevelManager : MonoBehaviour
     {
         if(targetsHit >= targetsToShootDown)
         {
+            GameManager.manager.ResetObjectsShotDown();
+            GameManager.manager.SaveState();
             SceneManager.LoadScene("Finish");
         }
     }

@@ -9,31 +9,35 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private string scoreTextTemplate = "Score: {0}/{1}";
     [SerializeField] private TextMeshProUGUI scoreText;
-
-    private int targetsToShootDown;
+    [SerializeField] private LevelManager levelManager;
     private int targetsHit;
+    private int targetsToShootDown;
 
     void Start()
     {
         Assert.IsNotNull(scoreText, "UIManager: scoreText is null");
-        targetsHit = 0;
-        targetsToShootDown = GameObject.FindGameObjectsWithTag("Target").Length;
+        UpdateValues();
         UpdateScoreText();
+    }
+
+    private void UpdateValues()
+    {
+        targetsHit = levelManager.targetsHit;
+        targetsToShootDown = levelManager.targetsToShootDown;
     }
 
     private void Awake()
     {
-        Messenger.AddListener(GameEvents.TARGET_DESTROYED, OnHit);
+        Messenger<int>.AddListener(GameEvents.TARGET_DESTROYED, OnHit);
     }
-
 
 
     private void OnDestroy()
     {
-        Messenger.RemoveListener(GameEvents.TARGET_DESTROYED, OnHit);
+        Messenger<int>.RemoveListener(GameEvents.TARGET_DESTROYED, OnHit);
     }
 
-    private void OnHit()
+    private void OnHit(int index)
     {
         targetsHit++;
         UpdateScoreText();

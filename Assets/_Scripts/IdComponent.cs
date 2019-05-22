@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IdComponent
+public class IdComponent : MonoBehaviour
 {
     public int id;
 }
