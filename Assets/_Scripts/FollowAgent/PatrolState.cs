@@ -15,6 +15,7 @@ public class PatrolState : IState
         {
             currentPatrolCheckpointIndex = 0;
         }
+        agent.GetNavMeshAgent().destination = agent.GetPatrolCheckpoints()[currentPatrolCheckpointIndex];
     }
 
     public void OnExitState(FollowAgent agent)
