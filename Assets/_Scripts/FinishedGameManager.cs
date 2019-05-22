@@ -12,7 +12,7 @@ public class FinishedGameManager : MonoBehaviour
     }
     public void GoToMenu()
     {
-        SceneManager.LoadScene("Menu");
+        SceneManager.LoadScene("Login");
     }
 
     public void RestartGame()
